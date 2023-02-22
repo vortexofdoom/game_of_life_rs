@@ -4,7 +4,14 @@ use grid::Grid;
 use itertools::Itertools;
 
 fn main() {
-    println!("{}", Board::random(8, 8));
+    let mut board = Board::random(50, 50);
+    print!("\x1b[2J\x1b[?25l");
+    loop {
+        print!("\x1b[;H");
+        println!("{board}");
+        board.advance();
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -15,7 +22,12 @@ pub struct Board {
 impl Display for Board {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (row, col) in (0..self.grid.rows()).cartesian_product(0..self.grid.cols()) {
-            write!(f, "{}", self.grid[row][col] as u32).unwrap();
+            let symbol = if self.grid[row][col] {
+                'O'
+            } else {
+                ' '
+            };
+            write!(f, "{}", symbol).unwrap();
             if col == self.grid.cols() - 1 {
                 write!(f, "\n").unwrap();
             }
