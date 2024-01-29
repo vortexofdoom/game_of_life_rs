@@ -4,13 +4,13 @@ use grid::Grid;
 use itertools::Itertools;
 
 fn main() {
-    let mut board = Board::random(50, 50);
+    let mut board = Board::random(50, 100);
     print!("\x1b[2J\x1b[?25l");
     loop {
         print!("\x1b[;H");
         println!("{board}");
         board.advance();
-        std::thread::sleep(std::time::Duration::from_millis(100));
+        std::thread::sleep(std::time::Duration::from_millis(50));
     }
 }
 
@@ -69,7 +69,7 @@ impl Board {
         let grid = &self.grid;
 
         // finds valid indices around the given coordinates
-        // might be worth breaking off as an option if implementing toroidal board space
+        // might be worth breaking off as a config option if implementing toroidal board space
         let valid_rows = match row {
             0 => 0..=1usize,
             r if r == grid.rows() - 1 => (r-1)..=r,
@@ -82,9 +82,8 @@ impl Board {
         };
 
         valid_rows.cartesian_product(valid_cols)
-            .filter(|i| i != &(row, col))
-            .map(|(r, c)| grid[r][c])
-            .filter(|&c| c)
+            .filter(|i| i != &(row, col))   // make sure we're ignoring the cell @ (row, col) itself
+            .filter(|&(r, c)| grid[r][c])   // could have combined the two filters but eh
             .count()
     }
 }
